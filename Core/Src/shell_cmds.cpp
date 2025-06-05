@@ -165,7 +165,6 @@ bool shell_cmds_echo_func( char * args, CommandCaller * caller ){
 
 } // shell_cmds_echo_func
 
-
 // $ Cmd ARG1 arg2 arG3
 //
 bool shell_cmds_echo_args_func( char* args, CommandCaller* caller ) {
