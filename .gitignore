@@ -1,0 +1,22 @@
+# Build folders
+/Build/
+/Debug/
+/Release/
+
+# Object files
+*.o
+*.d
+
+# STM32 project files
+/.settings/
+.project
+.cproject
+.mxproject
+
+# Other output
+*.elf
+*.hex
+*.bin
+*.map
+*.log
+

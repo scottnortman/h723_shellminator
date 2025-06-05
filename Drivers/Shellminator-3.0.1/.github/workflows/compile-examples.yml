@@ -1,0 +1,81 @@
+on:
+#  - push
+#  - pull_request
+  - workflow_dispatch
+
+jobs:
+  compile-examples:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        fqbn:
+          - arduino:avr:uno
+          - arduino:avr:nano
+          - arduino:avr:mega
+          - arduino:avr:leonardo
+          - arduino:avr:micro
+          - arduino:avr:mini
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: arduino/compile-sketches@v1
+        with:
+          fqbn: ${{ matrix.fqbn }}
+
+          sketch-paths: |
+            - examples/Shellminator_execute
+            - examples/Shellminator_simple
+            - examples/Shellminator_key_override
+            - examples/Shellminator_PROGMEM_Logo
+
+  compile-examples-for-esp32:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        fqbn:
+          - esp32:esp32:esp32
+          - esp32:esp32:esp32s3
+          - esp32:esp32:esp32c3
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: arduino/compile-sketches@v1
+        with:
+          fqbn: ${{ matrix.fqbn }}
+
+          platforms: |
+            - name: esp32:ESP32
+              source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+
+          sketch-paths: |
+            - examples/Shellminator_execute
+            - examples/Shellminator_simple
+            - examples/Shellminator_simple_ESP32_server
+            - examples/Shellminator_ESP32_server_with_Commander_prompt
+
+
+  compile-examples-for-esp8266:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        fqbn:
+          - esp8266:esp8266:nodemcuv2
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: arduino/compile-sketches@v1
+        with:
+          fqbn: ${{ matrix.fqbn }}
+
+          platforms: |
+            - name: esp8266:ESP8266
+              source-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
+
+
+          sketch-paths: |
+            - examples/Shellminator_execute
+            - examples/Shellminator_simple
+            - examples/Shellminator_simple_ESP8266_server
