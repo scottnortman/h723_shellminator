@@ -18,6 +18,9 @@
 #define MG_TCPIP_GW		MG_IPV4(192,168,0,1)
 #define MG_TCPIP_MASK	MG_IPV4(255,255,255,0)
 
+#define MG_ENABLE_PACKED_FS 1  // Enable "embedded", or packed, filesystem
+#define MG_ENABLE_POSIX_FS 0   // Disable POSIX filesystem
+
 // Uncomment the driver for your device
 #define MG_ENABLE_DRIVER_STM32H 1
 // #define MG_ENABLE_DRIVER_STM32F 1

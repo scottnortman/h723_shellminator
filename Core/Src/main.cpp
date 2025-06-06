@@ -122,14 +122,39 @@ bool mg_random(void *buf, size_t len){
 	return true;
 }
 
+static void event_handler(struct mg_connection *c, int ev, void *ev_data) {
+
+  if (ev == MG_EV_HTTP_MSG) {
+    struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+    if (mg_match(hm->uri, mg_str("/api/led/get"), NULL)) {
+      mg_http_reply(c, 200, "", "%d\n", HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0));
+    } else if (mg_match(hm->uri, mg_str("/api/led/toggle"), NULL)) {
+      HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0); // Can be different on your board
+      mg_http_reply(c, 200, "", "true\n");
+    } else {
+      struct mg_http_serve_opts opts = {.root_dir = "/web_root", .fs = &mg_fs_packed};
+      mg_http_serve_dir(c, hm, &opts);
+    }
+  }
+}
+
 // In RTOS environment, run this function in a separate task. Give it 8k stack
 static void run_mongoose(void) {
-  struct mg_mgr mgr;        // Mongoose event manager
-  mg_mgr_init(&mgr);        // Initialise event manager
-  mg_log_set(MG_LL_DEBUG);  // Set log level to debug
-  for (;;) {                // Infinite event loop
-    mg_mgr_poll(&mgr, 0);   // Process network events
-  }
+
+	struct mg_mgr mgr;        // Mongoose event manager
+
+	mg_mgr_init(&mgr);        // Initialise event manager
+
+	mg_log_set(MG_LL_DEBUG);  // Set log level to debug
+
+	mg_http_listen(&mgr, "http://0.0.0.0:80", event_handler, NULL);
+
+	for (;;) {                // Infinite event loop
+
+		mg_mgr_poll(&mgr, 0);   // Process network events
+
+	}
+
 }
 
 
@@ -163,6 +188,9 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
 
+
+
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -173,6 +201,11 @@ int main(void)
   MX_RNG_Init();
   /* USER CODE BEGIN 2 */
 
+
+  /* Initialize leds */
+  BSP_LED_Init(LED_GREEN);
+  BSP_LED_Init(LED_YELLOW);
+  BSP_LED_Init(LED_RED);
   run_mongoose();
 
 
@@ -192,10 +225,6 @@ int main(void)
 
   /* USER CODE END 2 */
 
-  /* Initialize leds */
-  BSP_LED_Init(LED_GREEN);
-  BSP_LED_Init(LED_YELLOW);
-  BSP_LED_Init(LED_RED);
 
   /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
   BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
